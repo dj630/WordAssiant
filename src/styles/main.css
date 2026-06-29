@@ -1,0 +1,18 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --pad: 16px; --accent: #2e7d32; --danger: #c62828; }
+html, body { height: 100%; }
+body {
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 18px; color: #222; background: #f5f5f5;
+  -webkit-text-size-adjust: 100%;
+}
+button {
+  font-size: 1rem; padding: 12px 20px; border: none; border-radius: 10px;
+  background: var(--accent); color: #fff; cursor: pointer; min-height: 48px;
+}
+button.secondary { background: #e0e0e0; color: #222; }
+button.danger { background: var(--danger); }
+input, select, textarea {
+  font-size: 1rem; padding: 10px; border: 1px solid #ccc; border-radius: 8px; width: 100%;
+}
+#app { max-width: 640px; margin: 0 auto; padding: var(--pad) var(--pad) 80px; }
