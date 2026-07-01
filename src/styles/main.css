@@ -16,3 +16,16 @@ input, select, textarea {
   font-size: 1rem; padding: 10px; border: 1px solid #ccc; border-radius: 8px; width: 100%;
 }
 #app { max-width: 640px; margin: 0 auto; padding: var(--pad) var(--pad) 80px; }
+.bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; display: flex;
+  background: #fff; border-top: 1px solid #ddd;
+}
+.bottom-nav .nav-item {
+  flex: 1; background: none; color: #666; border-radius: 0; font-size: 0.95rem;
+}
+.bottom-nav .nav-item.active { color: var(--accent); font-weight: 600; }
+.page-title { font-size: 1.4rem; margin: 8px 0 16px; }
+.card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.muted { color: #888; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row > * { flex: 1; }
