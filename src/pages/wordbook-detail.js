@@ -1,5 +1,5 @@
 import {
-  getWordbooks, getWordsByBook, addWords, deleteWord, deleteWordbook,
+  getWordbooks, getWordsByBook, addWords, deleteWord, deleteWordbook, updateWord,
 } from '../db/database.js'
 import { parseImport } from '../services/importer.js'
 import { fetchPhoneticsBatch } from '../services/phonetic.js'
@@ -89,7 +89,6 @@ export async function renderWordbookDetail({ id }) {
 
   async function backfillPhonetics(words) {
     const map = await fetchPhoneticsBatch(words.map((w) => w.text))
-    const { updateWord } = await import('../db/database.js')
     for (const w of words) {
       const ph = map.get(w.text)
       if (ph) await updateWord({ ...w, phonetic: ph })
