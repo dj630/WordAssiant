@@ -68,3 +68,17 @@ describe('database', () => {
     expect(words).toHaveLength(1)
   })
 })
+
+describe('createWordbook grade 字段', () => {
+  it('存储传入的 grade', async () => {
+    const wb = await createWordbook({ name: '三上 U1 X', type: 'en', grade: '三年级' })
+    const books = await getWordbooks()
+    expect(books.find((b) => b.id === wb.id).grade).toBe('三年级')
+  })
+
+  it('未传 grade 时缺省为空串', async () => {
+    const wb = await createWordbook({ name: '自建', type: 'zh' })
+    const books = await getWordbooks()
+    expect(books.find((b) => b.id === wb.id).grade).toBe('')
+  })
+})

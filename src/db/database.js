@@ -62,9 +62,9 @@ function txDone(transaction) {
   })
 }
 
-export async function createWordbook({ name, type }) {
+export async function createWordbook({ name, type, grade = '' }) {
   const db = await openDB()
-  const wb = { id: crypto.randomUUID(), name, type, createdAt: Date.now() }
+  const wb = { id: crypto.randomUUID(), name, type, grade, createdAt: Date.now() }
   const t = tx(db, ['wordbooks'], 'readwrite')
   t.objectStore('wordbooks').add(wb)
   await txDone(t)
