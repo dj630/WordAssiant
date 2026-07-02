@@ -6,6 +6,8 @@ import { todayStr } from '../utils/dates.js'
 import { navigate } from '../router.js'
 import { renderNav } from '../components/nav.js'
 
+const CJK_RE = /[一-鿿]/
+
 export async function renderDictation({ id }) {
   const el = document.createElement('div')
   const session = getSession()
@@ -65,7 +67,9 @@ export async function renderDictation({ id }) {
   }
 
   function answerOf(w) {
-    if (bookType === 'zh') return `${w.text}${w.pinyin ? ' ' + w.pinyin : ''}`
+    // mixed 会话按词自身判断：中文词显示拼音，英文词显示音标+释义
+    const isZh = bookType === 'zh' || (bookType === 'mixed' && CJK_RE.test(w.text))
+    if (isZh) return `${w.text}${w.pinyin ? ' ' + w.pinyin : ''}`
     return `${w.text}${w.phonetic ? ' ' + w.phonetic : ''}${w.meaning ? ' ' + w.meaning : ''}`
   }
 
@@ -90,8 +94,10 @@ export async function renderDictation({ id }) {
     el.querySelectorAll('[data-say]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const w = words[Number(btn.dataset.say)]
-        // 核对时始终朗读“被默写的目标”：英文本读英文、中文本读词语
-        speak(w.text, bookType === 'en' ? 'en-US' : 'zh-CN')
+        // 核对时始终朗读“被默写的目标”（读英文/读词语），用 spell 语义决定语言；
+        // mixed 会话按词自身判断（英文词 en-US、中文词 zh-CN）。
+        const { text, lang } = speakTextFor(w, bookType, 'spell')
+        speak(text, lang)
       })
     })
 

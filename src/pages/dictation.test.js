@@ -6,6 +6,7 @@ vi.mock('../services/tts.js', () => ({ speak: vi.fn() }))
 
 import { __resetForTests, createWordbook, addWords, getWordsByBook } from '../db/database.js'
 import { setSession } from '../services/dictation-session.js'
+import { speak } from '../services/tts.js'
 import { renderDictation } from './dictation.js'
 
 beforeEach(() => {
@@ -72,5 +73,30 @@ describe('听写进行与核对', () => {
     // 就地回到进行页，且只剩 1 个词（错词 apple）
     expect(el.querySelector('[data-action=next]')).not.toBeNull()
     expect(el.textContent).toContain('第 1 / 1')
+  })
+
+  it('mixed 会话核对页🔊按词自身语言重听', async () => {
+    const en = await createWordbook({ name: '英', type: 'en' })
+    const zh = await createWordbook({ name: '中', type: 'zh' })
+    const [ew] = await addWords(en.id, [{ text: 'apple', meaning: '苹果' }], '2026-06-29')
+    const [zw] = await addWords(zh.id, [{ text: '葡萄', pinyin: 'pú tao' }], '2026-06-29')
+    // mixed 会话：英文词 + 中文词
+    setSession({ words: [ew, zw], bookType: 'mixed', mode: 'spell', autoPlay: false, interval: 8 })
+
+    const el = await renderDictation({ id: 'review' })
+    el.querySelector('[data-action=next]').click() // apple → 葡萄
+    await new Promise((r) => setTimeout(r, 0))
+    el.querySelector('[data-action=next]').click() // 葡萄 → 核对
+    await new Promise((r) => setTimeout(r, 0))
+
+    const sayBtns = el.querySelectorAll('[data-say]')
+    speak.mockClear()
+    sayBtns[0].click() // apple
+    expect(speak).toHaveBeenLastCalledWith('apple', 'en-US')
+    sayBtns[1].click() // 葡萄
+    expect(speak).toHaveBeenLastCalledWith('葡萄', 'zh-CN')
+    // 中文词显示拼音，英文词显示释义
+    expect(el.textContent).toContain('pú tao')
+    expect(el.textContent).toContain('苹果')
   })
 })
