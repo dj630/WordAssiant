@@ -22,3 +22,13 @@ describe('speakTextFor', () => {
     expect(speakTextFor(w, 'en', 'meaning')).toEqual({ text: '苹果', lang: 'zh-CN' })
   })
 })
+
+import { describe as d2, it as i2, expect as e2 } from 'vitest'
+import { speakTextFor as stf } from './dictation-session.js'
+
+d2('混合本按词自判语言', () => {
+  i2('英文词读英文、中文词读中文', () => {
+    e2(stf({ text: 'apple', meaning: '苹果' }, 'mixed', 'spell')).toEqual({ text: 'apple', lang: 'en-US' })
+    e2(stf({ text: '葡萄', meaning: '' }, 'mixed', 'spell')).toEqual({ text: '葡萄', lang: 'zh-CN' })
+  })
+})
