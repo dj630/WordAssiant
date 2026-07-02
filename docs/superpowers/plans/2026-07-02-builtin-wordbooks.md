@@ -274,7 +274,7 @@ describe('内置词库目录页', () => {
     const books = await getWordbooks()
     expect(books).toHaveLength(1)
     expect(books[0].name).toBe('三上 U1 Making Friends')
-    expect(books[0].grade).toBe('三年级')
+    expect(books[0].grade).toBe('三年级上册') // 年级+册组合，区分上下册
     expect(books[0].type).toBe('en')
     const words = await getWordsByBook(books[0].id)
     expect(words.length).toBe(17) // 三上 U1 词条数
@@ -331,7 +331,8 @@ export async function renderBuiltin() {
     if (!book) return
     btn.disabled = true
     btn.textContent = '添加中…'
-    const wb = await createWordbook({ name: book.name, type: 'en', grade: book.grade })
+    // grade 存"年级+册"组合值（如 三年级上册），供单词本页按上下册筛选
+    const wb = await createWordbook({ name: book.name, type: 'en', grade: book.grade + book.term })
     const added = await addWords(wb.id, book.entries, todayStr())
     // 英文音标回填；短语查不到或离线则留空，不阻塞
     try {
@@ -416,21 +417,23 @@ git commit -m "feat: 内置词库目录页与一键添加到词库"
     expect(location.hash).toBe('#/builtin')
   })
 
-  it('按年级筛选只显示该年级的单词本', async () => {
-    // 直接建三本不同年级的本
+  it('按年级+册筛选（区分上下册）只显示该分类的单词本', async () => {
+    // 建三上、三下、四上各一本 + 一本未分类
     const { createWordbook } = await import('../db/database.js')
-    await createWordbook({ name: '三上 U1 A', type: 'en', grade: '三年级' })
-    await createWordbook({ name: '四上 U1 B', type: 'en', grade: '四年级' })
-    await createWordbook({ name: '自建 C', type: 'zh' }) // 未分类
+    await createWordbook({ name: '三上 U1 A', type: 'en', grade: '三年级上册' })
+    await createWordbook({ name: '三下 U1 B', type: 'en', grade: '三年级下册' })
+    await createWordbook({ name: '四上 U1 C', type: 'en', grade: '四年级上册' })
+    await createWordbook({ name: '自建 D', type: 'zh' }) // 未分类
 
     const el = await renderWordbooks()
-    // 点"三年级"筛选块
-    el.querySelector('[data-grade-filter="三年级"]').click()
+    // 点"三年级上册"筛选块
+    el.querySelector('[data-grade-filter="三年级上册"]').click()
     await new Promise((r) => setTimeout(r, 0))
     const list = el.querySelector('#wb-list')
     expect(list.textContent).toContain('三上 U1 A')
-    expect(list.textContent).not.toContain('四上 U1 B')
-    expect(list.textContent).not.toContain('自建 C')
+    expect(list.textContent).not.toContain('三下 U1 B') // 区分上下册
+    expect(list.textContent).not.toContain('四上 U1 C')
+    expect(list.textContent).not.toContain('自建 D')
   })
 ```
 
@@ -497,8 +500,10 @@ export async function renderWordbooks() {
         </select>
         <select name="wb-grade">
           <option value="">不限年级</option>
-          <option value="三年级">三年级</option>
-          <option value="四年级">四年级</option>
+          <option value="三年级上册">三年级上册</option>
+          <option value="三年级下册">三年级下册</option>
+          <option value="四年级上册">四年级上册</option>
+          <option value="四年级下册">四年级下册</option>
         </select>
         <button data-action="create">创建</button>
       </div>
