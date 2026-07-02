@@ -22,4 +22,20 @@ describe('听写设置', () => {
     expect(s.bookType).toBe('en')
     expect(s.mode).toBe('spell')
   })
+
+  it('间隔超出 5–20 时被夹取', async () => {
+    const wb = await createWordbook({ name: '本', type: 'en' })
+    await addWords(wb.id, [{ text: 'apple', meaning: '苹果' }], '2026-06-29')
+    const el = await renderDictationSetup({ id: wb.id })
+    el.querySelector('[name=interval]').value = '999'
+    el.querySelector('[data-action=start]').click()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getSession().interval).toBe(20)
+
+    const el2 = await renderDictationSetup({ id: wb.id })
+    el2.querySelector('[name=interval]').value = '1'
+    el2.querySelector('[data-action=start]').click()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getSession().interval).toBe(5)
+  })
 })

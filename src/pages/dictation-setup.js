@@ -54,12 +54,13 @@ export async function renderDictationSetup({ id }) {
       chosen = words.filter((w) => ids.includes(w.id))
     }
     if (!chosen.length) return
+    const interval = Math.min(20, Math.max(5, Number(el.querySelector('[name=interval]').value) || 8))
     setSession({
       words: chosen,
       bookType: wb.type,
       mode: isEn ? el.querySelector('[name=mode]:checked').value : 'spell',
       autoPlay: el.querySelector('[name=autoplay]').checked,
-      interval: Number(el.querySelector('[name=interval]').value) || 8,
+      interval,
     })
     navigate(`#/dictation/${id}`)
   })
