@@ -24,6 +24,8 @@ for (const l0 of lines) {
   if (g) { grade = g[1]; term = g[2]; continue }
   const u = l.match(UNIT_RE)
   if (u) {
+    if (pending !== null) throw new Error(`未配对的英文行「${pending}」出现在 Unit「${l}」之前，源文件疑似缺行`)
+    if (!grade || !term) throw new Error(`Unit「${l}」出现在年级/册标题之前`)
     flush()
     const unit = +u[1]
     cur = {
@@ -39,6 +41,7 @@ for (const l0 of lines) {
   if (pending === null) pending = l            // 英文行
   else { cur.entries.push({ text: pending, meaning: l }); pending = null } // 中文行成对
 }
+if (pending !== null) throw new Error(`文件末尾存在未配对的英文行「${pending}」，源文件疑似缺少中文释义行`)
 flush()
 
 const esc = (s) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
