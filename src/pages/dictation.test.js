@@ -16,10 +16,13 @@ beforeEach(() => {
   // 仅伪造 Date，不伪造计时器，避免影响用例中真实的 setTimeout 等待。
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 5, 29))
+  // jsdom 未实现 window.confirm，默认桩为 false 以保持输出纯净；需要重练的用例自行覆盖。
+  vi.spyOn(window, 'confirm').mockReturnValue(false)
 })
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.restoreAllMocks()
 })
 
 describe('听写进行与核对', () => {
@@ -43,5 +46,31 @@ describe('听写进行与核对', () => {
     const after = await getWordsByBook(wb.id)
     expect(after[0].isWrong).toBe(1)
     expect(after[0].dueDate).toBe('2026-06-30')
+  })
+
+  it('确认重练错词时就地重开一轮只含错词', async () => {
+    const wb = await createWordbook({ name: '本', type: 'en' })
+    const words = await addWords(
+      wb.id,
+      [{ text: 'apple', meaning: '苹果' }, { text: 'cat', meaning: '猫' }],
+      '2026-06-29',
+    )
+    setSession({ words, bookType: 'en', mode: 'spell', autoPlay: false, interval: 8 })
+    window.confirm.mockReturnValue(true)
+
+    const el = await renderDictation({ id: wb.id })
+    // apple(进行) → cat(进行) → 核对
+    el.querySelector('[data-action=next]').click()
+    await new Promise((r) => setTimeout(r, 0))
+    el.querySelector('[data-action=next]').click()
+    await new Promise((r) => setTimeout(r, 0))
+    // 只标 apple 错
+    el.querySelectorAll('[data-mark="wrong"]')[0].click()
+    el.querySelector('[data-action=finish]').click()
+    await new Promise((r) => setTimeout(r, 20))
+
+    // 就地回到进行页，且只剩 1 个词（错词 apple）
+    expect(el.querySelector('[data-action=next]')).not.toBeNull()
+    expect(el.textContent).toContain('第 1 / 1')
   })
 })

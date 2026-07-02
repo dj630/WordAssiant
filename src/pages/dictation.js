@@ -15,7 +15,8 @@ export async function renderDictation({ id }) {
     return el
   }
 
-  const { words, bookType, mode } = session
+  const { bookType, mode } = session
+  let words = session.words
   let index = 0
   let timer = null
   const marks = new Map() // wordId -> 'right' | 'wrong'
@@ -114,12 +115,15 @@ export async function renderDictation({ id }) {
       await updateWord({ ...w, ...applyReviewResult(w, correct, today) })
     }
     const wrongWords = words.filter((w) => marks.get(w.id) === 'wrong')
-    clearSession()
     if (wrongWords.length && confirm(`本次 ${wrongWords.length} 个错词，立即重练吗？`)) {
-      setTimeout(() => {
-        location.reload && location.reload()
-      }, 0)
+      // 就地开启一轮只含错词的重练，无需重载页面或丢失会话
+      words = wrongWords
+      index = 0
+      marks.clear()
+      renderRunning()
+      return
     }
+    clearSession()
     navigate('#/')
   }
 
