@@ -3,6 +3,7 @@ import { setSession } from '../services/dictation-session.js'
 import { todayStr } from '../utils/dates.js'
 import { navigate } from '../router.js'
 import { renderNav } from '../components/nav.js'
+import { renderBackupSection } from './backup-section.js'
 
 export async function renderHome() {
   const el = document.createElement('div')
@@ -31,6 +32,7 @@ export async function renderHome() {
     })
   }
 
+  el.appendChild(renderBackupSection())
   el.appendChild(renderNav('home'))
   return el
 }
