@@ -5,6 +5,7 @@ const ROUTES = [
   { name: 'dictation-setup', pattern: /^#\/dictation-setup\/([^/]+)$/, keys: ['id'] },
   { name: 'dictation', pattern: /^#\/dictation\/([^/]+)$/, keys: ['id'] },
   { name: 'wrongbook', pattern: /^#\/wrongbook$/, keys: [] },
+  { name: 'builtin', pattern: /^#\/builtin$/, keys: [] },
 ]
 
 export function parseRoute(hash) {

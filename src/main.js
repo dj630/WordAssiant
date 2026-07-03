@@ -5,6 +5,7 @@ import { renderWordbookDetail } from './pages/wordbook-detail.js'
 import { renderDictationSetup } from './pages/dictation-setup.js'
 import { renderDictation } from './pages/dictation.js'
 import { renderWrongbook } from './pages/wrongbook.js'
+import { renderBuiltin } from './pages/builtin.js'
 
 const PAGES = {
   home: renderHome,
@@ -13,6 +14,7 @@ const PAGES = {
   'dictation-setup': renderDictationSetup,
   dictation: renderDictation,
   wrongbook: renderWrongbook,
+  builtin: renderBuiltin,
 }
 
 async function render() {
