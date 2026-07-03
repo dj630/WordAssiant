@@ -29,3 +29,15 @@ input, select, textarea {
 .muted { color: #888; }
 .row { display: flex; gap: 8px; align-items: center; }
 .row > * { flex: 1; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #cfcfcf;
+  background: #fff;
+  font-size: 0.9rem;
+}
+.chip-active {
+  background: #2e7d32;
+  color: #fff;
+  border-color: #2e7d32;
+}
