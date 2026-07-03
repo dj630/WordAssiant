@@ -50,4 +50,20 @@ describe('单词本页', () => {
     expect(list.textContent).not.toContain('四上 U1 C')
     expect(list.textContent).not.toContain('自建 D')
   })
+
+  it('“未分类”筛选只显示无年级的本，且带年级的本显示年级标签', async () => {
+    const { createWordbook } = await import('../db/database.js')
+    await createWordbook({ name: '三上 U1 A', type: 'en', grade: '三上' })
+    await createWordbook({ name: '自建 D', type: 'zh' }) // 未分类
+
+    const el = await renderWordbooks()
+    // 带年级的本渲染出年级标签
+    expect(el.querySelector('#wb-list').textContent).toContain('三上')
+    // 点"未分类"筛选块
+    el.querySelector('[data-grade-filter="none"]').click()
+    await new Promise((r) => setTimeout(r, 0))
+    const list = el.querySelector('#wb-list')
+    expect(list.textContent).toContain('自建 D')
+    expect(list.textContent).not.toContain('三上 U1 A')
+  })
 })

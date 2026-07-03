@@ -30,6 +30,7 @@ input, select, textarea {
 .row { display: flex; gap: 8px; align-items: center; }
 .row > * { flex: 1; }
 .chip {
+  flex: 0 0 auto; /* 覆盖 .row > * 的 flex:1，使胶囊按内容自适应而非拉伸 */
   padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid #cfcfcf;

@@ -6,6 +6,7 @@ vi.mock('../services/phonetic.js', () => ({
   fetchPhoneticsBatch: vi.fn(async () => new Map()),
 }))
 
+import * as db from '../db/database.js'
 import { __resetForTests, getWordbooks, getWordsByBook } from '../db/database.js'
 import { fetchPhoneticsBatch } from '../services/phonetic.js'
 import { renderBuiltin } from './builtin.js'
@@ -62,5 +63,17 @@ describe('内置词库目录页', () => {
     const books = await getWordbooks()
     const words = await getWordsByBook(books[0].id)
     expect(words.find((w) => w.text === 'nice').phonetic).toBe('/naɪs/')
+  })
+
+  it('建本失败时恢复按钮为“添加失败，重试”', async () => {
+    const spy = vi.spyOn(db, 'createWordbook').mockRejectedValueOnce(new Error('boom'))
+    const el = await renderBuiltin()
+    const btn = el.querySelector('[data-add="pep2024-g3-t1-u1"]')
+    btn.click()
+    await new Promise((r) => setTimeout(r, 30))
+    expect(btn.disabled).toBe(false)
+    expect(btn.textContent).toBe('添加失败，重试')
+    expect(await getWordbooks()).toHaveLength(0)
+    spy.mockRestore()
   })
 })
