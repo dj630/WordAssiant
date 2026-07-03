@@ -9,7 +9,14 @@ export async function renderWordbooks() {
   const books = await getWordbooks()
 
   // 年级筛选选项：全部 + 出现过的年级 + （存在未分类本时）未分类
+  // 按固定顺序（三上→三下→四上→四下→其他）排列，避免因建本顺序不同导致块乱序
+  const GRADE_ORDER = ['三上', '三下', '四上', '四下']
   const grades = [...new Set(books.map((b) => b.grade).filter(Boolean))]
+    .sort((a, b) => {
+      const ia = GRADE_ORDER.indexOf(a)
+      const ib = GRADE_ORDER.indexOf(b)
+      return (ia < 0 ? GRADE_ORDER.length : ia) - (ib < 0 ? GRADE_ORDER.length : ib) || a.localeCompare(b)
+    })
   const hasUncategorized = books.some((b) => !b.grade)
   let activeGrade = 'all'
 
