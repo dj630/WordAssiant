@@ -38,18 +38,31 @@ export async function renderBuiltin() {
     if (!book) return
     btn.disabled = true
     btn.textContent = '添加中…'
-    // grade 存"年级+册"组合值（如 三年级上册），供单词本页按上下册筛选
-    const wb = await createWordbook({ name: book.name, type: 'en', grade: book.grade + book.term })
-    const added = await addWords(wb.id, book.entries, todayStr())
-    // 英文音标回填；短语查不到或离线则留空，不阻塞
+    let added
     try {
-      const map = await fetchPhoneticsBatch(added.map((w) => w.text))
-      for (const w of added) {
+      // grade 存"年级+册"组合值（如 三年级上册），供单词本页按上下册筛选
+      const wb = await createWordbook({ name: book.name, type: 'en', grade: book.grade + book.term })
+      added = await addWords(wb.id, book.entries, todayStr())
+    } catch {
+      // 建本/写词失败：恢复按钮，允许重试
+      btn.disabled = false
+      btn.textContent = '添加失败，重试'
+      return
+    }
+    // 数据已持久化，立即反馈；音标在后台回填
+    btn.textContent = '已添加 ✓'
+    backfillPhonetics(added)
+  }
+
+  // 英文音标回填；短语查不到或离线则留空，不阻塞，失败静默
+  async function backfillPhonetics(words) {
+    try {
+      const map = await fetchPhoneticsBatch(words.map((w) => w.text))
+      for (const w of words) {
         const ph = map.get(w.text)
         if (ph) await updateWord({ ...w, phonetic: ph })
       }
     } catch { /* 忽略网络失败 */ }
-    btn.textContent = '已添加 ✓'
   }
 
   el.querySelectorAll('[data-add]').forEach((btn) => {
