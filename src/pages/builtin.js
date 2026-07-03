@@ -11,6 +11,11 @@ const GROUPS = [
   { grade: '四年级', term: '下册' },
 ]
 
+// 年级+册 → 短标签（三上/三下/四上/四下），作为单词本 grade 存储值，供上下册筛选
+const GRADE_SHORT = { '三年级': '三', '四年级': '四' }
+const TERM_SHORT = { '上册': '上', '下册': '下' }
+const shortGrade = (book) => GRADE_SHORT[book.grade] + TERM_SHORT[book.term]
+
 export async function renderBuiltin() {
   const el = document.createElement('div')
   const existingNames = new Set((await getWordbooks()).map((b) => b.name))
@@ -40,8 +45,8 @@ export async function renderBuiltin() {
     btn.textContent = '添加中…'
     let added
     try {
-      // grade 存"年级+册"组合值（如 三年级上册），供单词本页按上下册筛选
-      const wb = await createWordbook({ name: book.name, type: 'en', grade: book.grade + book.term })
+      // grade 存年级+册短标签（如 三上），供单词本页按上下册筛选
+      const wb = await createWordbook({ name: book.name, type: 'en', grade: shortGrade(book) })
       added = await addWords(wb.id, book.entries, todayStr())
     } catch {
       // 建本/写词失败：恢复按钮，允许重试

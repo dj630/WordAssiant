@@ -53,10 +53,10 @@ export async function renderWordbooks() {
         </select>
         <select name="wb-grade">
           <option value="">不限年级</option>
-          <option value="三年级上册">三年级上册</option>
-          <option value="三年级下册">三年级下册</option>
-          <option value="四年级上册">四年级上册</option>
-          <option value="四年级下册">四年级下册</option>
+          <option value="三上">三上</option>
+          <option value="三下">三下</option>
+          <option value="四上">四上</option>
+          <option value="四下">四下</option>
         </select>
         <button data-action="create">创建</button>
       </div>

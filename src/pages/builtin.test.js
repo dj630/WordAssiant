@@ -31,7 +31,7 @@ describe('内置词库目录页', () => {
     const books = await getWordbooks()
     expect(books).toHaveLength(1)
     expect(books[0].name).toBe('三上 U1 Making Friends')
-    expect(books[0].grade).toBe('三年级上册') // 年级+册组合，区分上下册
+    expect(books[0].grade).toBe('三上') // 年级+册短标签，区分上下册
     expect(books[0].type).toBe('en')
     const words = await getWordsByBook(books[0].id)
     expect(words.length).toBe(17) // 三上 U1 词条数

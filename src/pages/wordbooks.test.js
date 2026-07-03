@@ -35,14 +35,14 @@ describe('单词本页', () => {
   it('按年级+册筛选（区分上下册）只显示该分类的单词本', async () => {
     // 建三上、三下、四上各一本 + 一本未分类
     const { createWordbook } = await import('../db/database.js')
-    await createWordbook({ name: '三上 U1 A', type: 'en', grade: '三年级上册' })
-    await createWordbook({ name: '三下 U1 B', type: 'en', grade: '三年级下册' })
-    await createWordbook({ name: '四上 U1 C', type: 'en', grade: '四年级上册' })
+    await createWordbook({ name: '三上 U1 A', type: 'en', grade: '三上' })
+    await createWordbook({ name: '三下 U1 B', type: 'en', grade: '三下' })
+    await createWordbook({ name: '四上 U1 C', type: 'en', grade: '四上' })
     await createWordbook({ name: '自建 D', type: 'zh' }) // 未分类
 
     const el = await renderWordbooks()
-    // 点"三年级上册"筛选块
-    el.querySelector('[data-grade-filter="三年级上册"]').click()
+    // 点"三上"筛选块
+    el.querySelector('[data-grade-filter="三上"]').click()
     await new Promise((r) => setTimeout(r, 0))
     const list = el.querySelector('#wb-list')
     expect(list.textContent).toContain('三上 U1 A')
